@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Well Do You Know Me?</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f8f8fc;color:#24243a;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:white;width:100%;max-width:440px;padding:26px;border-radius:24px;box-shadow:0 8px 35px #20204412}
+.tag{color:#7657e8;font-weight:bold;font-size:13px;letter-spacing:1px}
+h1{font-size:30px;line-height:1.15;margin:12px 0}
+p{color:#73738a;line-height:1.5}
+input{width:100%;padding:14px;border:1px solid #ddddec;border-radius:12px;font-size:16px;margin:12px 0}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px}
+.primary{background:#7657e8;color:white}
+.answer{background:#f0edff;color:#393052;text-align:left}
+.answer:active,.primary:active{transform:scale(.98)}
+.top{display:flex;justify-content:space-between;color:#777;font-size:13px;margin-bottom:12px}
+.bar{height:7px;background:#eeeafc;border-radius:10px;margin-bottom:24px;overflow:hidden}
+.fill{height:100%;width:0;background:#7657e8;transition:width .2s}
+.hidden{display:none}
+.emoji{font-size:46px}
+footer{text-align:center;font-size:12px;color:#aaa;margin-top:22px}
+</style>
+</head>
+<body>
+<main class="card">
+<section id="welcome">
+<div class="tag">✨ THE ULTIMATE FRIENDSHIP TEST</div>
+<h1>How well do you know me?</h1>
+<p>Think you know everything about me? Let's find out!</p>
+<label for="nickname">What's your name?</label>
+<input id="nickname" maxlength="24" placeholder="Enter your nickname">
+<button class="primary" onclick="startQuiz()">Let's Play →</button>
+</section>
+
+<section id="game" class="hidden">
+<div class="top"><span id="player"></span><span id="count"></span></div>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<h2 id="question"></h2>
+<div id="answers"></div>
+<p id="feedback" aria-live="polite"></p>
+<button id="next" class="primary hidden" onclick="nextQuestion()">Next question →</button>
+</section>
+
+<section id="result" class="hidden">
+<div class="emoji" id="emoji">🎉</div>
+<div class="tag">QUIZ COMPLETED</div>
+<h1 id="resultTitle"></h1>
+<p id="resultText"></p>
+<p id="score"></p>
+<button class="primary" onclick="restart()">Play again ↻</button>
+</section>
+<footer>Made with 💜 • Your score stays on this device</footer>
+</main>
+<script>
+// EDIT THESE QUESTIONS AND ANSWERS TO MAKE THE QUIZ ABOUT YOU.
+// Each question needs four answers. Set correct to the answer's index: 0, 1, 2, or 3.
+const questions = [
+ {q:"What is my favourite colour?",a:["Black","Blue","White","Green"],correct:0},
+ {q:"What do I enjoy doing in my free time?",a:["Reading","Gaming","Cooking","Painting"],correct:1},
+ {q:"Which kind of music do I enjoy most?",a:["Pop","Punjabi","Classical","Rock"],correct:1},
+ {q:"What is my favourite type of food?",a:["Pizza","Biryani","Burger","Dosa"],correct:1},
+ {q:"Am I more of a morning or night person?",a:["Morning","Night","Both equally","Neither"],correct:1},
+ {q:"What would I choose for a day out?",a:["Shopping","Gaming","A movie","Staying home"],correct:3},
+ {q:"What matters most in a friendship?",a:["Trust","Popularity","Gifts","Being funny"],correct:0},
+ {q:"Which describes me best?",a:["Quiet","Funny","Adventurous","All of these"],correct:3},
+ {q:"What is my favourite way to relax?",a:["Music","Sports","Sleeping","Watching videos"],correct:0},
+ {q:"How well do you think you know me?",a:["A little","Pretty well","Very well","I'm an expert!"],correct:2}
+];
+let index=0,score=0,playerName="Friend",locked=false;
+function startQuiz(){
+ playerName=document.getElementById("nickname").value.trim()||"Friend";
+ index=0;score=0;
+ show("welcome",false);show("result",false);show("game",true);
+ document.getElementById("player").textContent="Player: "+playerName;
+ renderQuestion();
+}
+function renderQuestion(){
+ locked=false;
+ const item=questions[index];
+ document.getElementById("count").textContent=(index+1)+" / "+questions.length;
+ document.getElementById("fill").style.width=(index/questions.length*100)+"%";
+ document.getElementById("question").textContent=item.q;
+ document.getElementById("feedback").textContent="";
+ document.getElementById("next").classList.add("hidden");
+ const area=document.getElementById("answers");area.replaceChildren();
+ item.a.forEach((answer,i)=>{
+  const b=document.createElement("button");
+  b.className="answer";b.textContent=String.fromCharCode(65+i)+". "+answer;
+  b.onclick=()=>chooseAnswer(i);
+  area.appendChild(b);
+ });
+}
+function chooseAnswer(i){
+ if(locked)return;locked=true;
+ const item=questions[index];
+ if(i===item.correct){score++;document.getElementById("feedback").textContent="✅ Correct!";}
+ else{document.getElementById("feedback").textContent="💜 Nice try!";}
+ document.querySelectorAll(".answer").forEach(b=>b.disabled=true);
+ document.getElementById("fill").style.width=((index+1)/questions.length*100)+"%";
+ const next=document.getElementById("next");
+ next.textContent=index===questions.length-1?"See my result 🎉":"Next question →";
+ next.classList.remove("hidden");
+}
+function nextQuestion(){
+ if(index<questions.length-1){index++;renderQuestion();}
+ else showResult();
+}
+function showResult(){
+ show("game",false);show("result",true);
+ document.getElementById("score").textContent="Your score: "+score+" / "+questions.length;
+ document.getElementById("emoji").textContent=score>=8?"🏆":score>=5?"🎉":"💜";
+ document.getElementById("resultTitle").textContent=score>=8?"You know me so well, "+playerName+"!":score>=5?"Pretty good, "+playerName+"!":"Time to get to know me better, "+playerName+"!";
+ document.getElementById("resultText").textContent=score>=8?"You're a true expert. I'm impressed!":score>=5?"You know quite a bit about me. Can you get a higher score next time?":"Thanks for playing! Try again and see if you can beat your score.";
+}
+function restart(){
+ show("result",false);show("welcome",true);
+ document.getElementById("nickname").value="";
+}
+function show(id,on){document.getElementById(id).classList.toggle("hidden",!on);}
+</script>
+</body>
+</html>
