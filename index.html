@@ -4,123 +4,268 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7f4ff">
 <title>How Well Do You Know Me?</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f8f8fc;color:#24243a;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
-.card{background:white;width:100%;max-width:440px;padding:26px;border-radius:24px;box-shadow:0 8px 35px #20204412}
-.tag{color:#7657e8;font-weight:bold;font-size:13px;letter-spacing:1px}
+:root{--purple:#7955e8;--light:#f0eaff;--ink:#29243c;--muted:#777187}
+body{
+ margin:0;min-height:100vh;padding:20px;
+ display:flex;align-items:center;justify-content:center;
+ font-family:Arial,Helvetica,sans-serif;color:var(--ink);
+ background:linear-gradient(145deg,#faf8ff,#f0eaff);
+}
+.card{
+ width:100%;max-width:440px;background:#fff;
+ border:1px solid #eee8ff;border-radius:25px;
+ padding:25px;box-shadow:0 15px 45px #5533aa13;
+}
+.tag{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--purple)}
 h1{font-size:30px;line-height:1.15;margin:12px 0}
-p{color:#73738a;line-height:1.5}
-input{width:100%;padding:14px;border:1px solid #ddddec;border-radius:12px;font-size:16px;margin:12px 0}
-button{width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px}
-.primary{background:#7657e8;color:white}
-.answer{background:#f0edff;color:#393052;text-align:left}
-.answer:active,.primary:active{transform:scale(.98)}
-.top{display:flex;justify-content:space-between;color:#777;font-size:13px;margin-bottom:12px}
-.bar{height:7px;background:#eeeafc;border-radius:10px;margin-bottom:24px;overflow:hidden}
-.fill{height:100%;width:0;background:#7657e8;transition:width .2s}
-.hidden{display:none}
-.emoji{font-size:46px}
-footer{text-align:center;font-size:12px;color:#aaa;margin-top:22px}
+h2{font-size:22px;line-height:1.35;margin:20px 0}
+p{color:var(--muted);line-height:1.6;font-size:14px}
+input{
+ width:100%;padding:14px;margin:12px 0 8px;
+ border:1px solid #e3dcef;border-radius:12px;font-size:16px;
+ outline-color:var(--purple);
+}
+button{
+ width:100%;border:0;border-radius:13px;padding:14px;
+ margin-top:10px;font-size:15px;font-weight:700;
+ cursor:pointer;transition:transform .15s,opacity .15s;
+}
+button:active{transform:scale(.98)}
+button:disabled{cursor:default;opacity:1}
+.primary{background:var(--purple);color:#fff}
+.answer{
+ background:#f3efff;color:#39304f;text-align:left;
+ border:1px solid transparent;
+}
+.answer:nth-child(2){background:#eaf6ff}
+.answer:nth-child(3){background:#fff0f5}
+.answer:nth-child(4){background:#fff6e6}
+.answer:disabled{color:#39304f}
+.answer.correct{background:#dcfce7;border-color:#22a05a}
+.answer.wrong{background:#ffe3e8;border-color:#e65c76}
+.top{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.bar{height:7px;background:#eee8fc;border-radius:10px;margin:14px 0 22px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--purple);transition:width .25s}
+.hidden{display:none!important}
+.emoji{font-size:48px;margin:10px 0}
+.score{font-size:35px;font-weight:800;color:var(--purple);margin:15px 0}
+footer{text-align:center;color:#aaa;font-size:11px;margin-top:22px}
 </style>
 </head>
 <body>
 <main class="card">
+
 <section id="welcome">
-<div class="tag">✨ THE ULTIMATE FRIENDSHIP TEST</div>
-<h1>How well do you know me?</h1>
-<p>Think you know everything about me? Let's find out!</p>
-<label for="nickname">What's your name?</label>
-<input id="nickname" maxlength="24" placeholder="Enter your nickname">
-<button class="primary" onclick="startQuiz()">Let's Play →</button>
+ <div class="tag">💜 THE FRIENDSHIP CHALLENGE</div>
+ <h1>How well do you know me?</h1>
+ <p>10 questions. 4 options each. Let's see who really knows me! 👀</p>
+ <label for="nickname"><strong>Enter your name</strong></label>
+ <input id="nickname" maxlength="24" placeholder="Your nickname"
+        autocomplete="off">
+ <button class="primary" id="startBtn">Let's Play ✨</button>
+ <p>Ready to prove you're a real one?</p>
 </section>
 
 <section id="game" class="hidden">
-<div class="top"><span id="player"></span><span id="count"></span></div>
-<div class="bar"><div class="fill" id="fill"></div></div>
-<h2 id="question"></h2>
-<div id="answers"></div>
-<p id="feedback" aria-live="polite"></p>
-<button id="next" class="primary hidden" onclick="nextQuestion()">Next question →</button>
+ <div class="top">
+  <span id="player"></span>
+  <span id="count"></span>
+ </div>
+ <div class="bar"><div class="fill" id="fill"></div></div>
+ <div class="tag">QUESTION TIME</div>
+ <h2 id="question"></h2>
+ <div id="answers"></div>
+ <p id="feedback" aria-live="polite"></p>
+ <button class="primary hidden" id="nextBtn">Next question →</button>
 </section>
 
 <section id="result" class="hidden">
-<div class="emoji" id="emoji">🎉</div>
-<div class="tag">QUIZ COMPLETED</div>
-<h1 id="resultTitle"></h1>
-<p id="resultText"></p>
-<p id="score"></p>
-<button class="primary" onclick="restart()">Play again ↻</button>
+ <div class="emoji" id="emoji">🏆</div>
+ <div class="tag">QUIZ COMPLETED</div>
+ <h1 id="resultTitle">Amazing!</h1>
+ <p id="resultText"></p>
+ <div class="score" id="score"></div>
+ <p id="resultMessage"></p>
+ <button class="primary" id="restartBtn">Play Again ↻</button>
 </section>
-<footer>Made with 💜 • Your score stays on this device</footer>
+
+<footer>Made with 💜 · Just for friends</footer>
 </main>
+
 <script>
-// EDIT THESE QUESTIONS AND ANSWERS TO MAKE THE QUIZ ABOUT YOU.
-// Each question needs four answers. Set correct to the answer's index: 0, 1, 2, or 3.
 const questions = [
- {q:"What is my favourite colour?",a:["Black","Blue","White","Green"],correct:0},
- {q:"What do I enjoy doing in my free time?",a:["Reading","Gaming","Cooking","Painting"],correct:1},
- {q:"Which kind of music do I enjoy most?",a:["Pop","Punjabi","Classical","Rock"],correct:1},
- {q:"What is my favourite type of food?",a:["Pizza","Biryani","Burger","Dosa"],correct:1},
- {q:"Am I more of a morning or night person?",a:["Morning","Night","Both equally","Neither"],correct:1},
- {q:"What would I choose for a day out?",a:["Shopping","Gaming","A movie","Staying home"],correct:3},
- {q:"What matters most in a friendship?",a:["Trust","Popularity","Gifts","Being funny"],correct:0},
- {q:"Which describes me best?",a:["Quiet","Funny","Adventurous","All of these"],correct:3},
- {q:"What is my favourite way to relax?",a:["Music","Sports","Sleeping","Watching videos"],correct:0},
- {q:"How well do you think you know me?",a:["A little","Pretty well","Very well","I'm an expert!"],correct:2}
+ {
+  q:"Who is my favourite singer?",
+  a:["Arijit Singh","Sidhu Moosewala","Karan Aujla","Diljit Dosanjh"],
+  correct:2
+ },
+ {
+  q:"Which is my current favourite song?",
+  a:["Antidote","At Peace","HIM.","Ashke"],
+  correct:2
+ },
+ {
+  q:"Which is my favourite clothing brand?",
+  a:["Gucci","Louis Vuitton (LV)","Prada","Dior"],
+  correct:1
+ },
+ {
+  q:"Which is my favourite watch brand?",
+  a:["Rolex","Audemars Piguet","Richard Mille (RM)","Patek Philippe"],
+  correct:2
+ },
+ {
+  q:"What is my favourite timepass?",
+  a:["Gaming","Listening to songs","Timepass with friends","Watching reels"],
+  correct:1
+ },
+ {
+  q:"What is my favourite mobile brand?",
+  a:["Vivo","Oppo","Samsung","iPhone"],
+  correct:2
+ },
+ {
+  q:"What is my favourite shoe brand?",
+  a:["Nike","One8","Jordan","Amiri"],
+  correct:3
+ },
+ {
+  q:"What is my favourite mobile game?",
+  a:["Free Fire (FF)","BGMI","GTA V","Minecraft"],
+  correct:3
+ },
+ {
+  q:"Who is my favourite YouTuber?",
+  a:["ScoutOP","CarryMinati","GamerFleet","BeastBoyShub"],
+  correct:2
+ },
+ {
+  q:"What is my favourite car brand?",
+  a:["BMW","Mercedes-Benz","Porsche","Lamborghini"],
+  correct:2
+ }
 ];
-let index=0,score=0,playerName="Friend",locked=false;
+
+let index=0;
+let score=0;
+let playerName="Friend";
+let locked=false;
+
+const $ = id => document.getElementById(id);
+
+function show(id){
+ ["welcome","game","result"].forEach(section=>{
+  $(section).classList.toggle("hidden",section!==id);
+ });
+}
+
+$("startBtn").addEventListener("click",startQuiz);
+$("nextBtn").addEventListener("click",nextQuestion);
+$("restartBtn").addEventListener("click",()=>{
+ $("nickname").value="";
+ show("welcome");
+});
+$("nickname").addEventListener("keydown",event=>{
+ if(event.key==="Enter")startQuiz();
+});
+
 function startQuiz(){
- playerName=document.getElementById("nickname").value.trim()||"Friend";
- index=0;score=0;
- show("welcome",false);show("result",false);show("game",true);
- document.getElementById("player").textContent="Player: "+playerName;
+ playerName=$("nickname").value.trim().slice(0,24)||"Friend";
+ index=0;
+ score=0;
+ $("player").textContent="💜 "+playerName;
+ show("game");
  renderQuestion();
 }
+
 function renderQuestion(){
  locked=false;
  const item=questions[index];
- document.getElementById("count").textContent=(index+1)+" / "+questions.length;
- document.getElementById("fill").style.width=(index/questions.length*100)+"%";
- document.getElementById("question").textContent=item.q;
- document.getElementById("feedback").textContent="";
- document.getElementById("next").classList.add("hidden");
- const area=document.getElementById("answers");area.replaceChildren();
+ $("count").textContent=`${index+1} / ${questions.length}`;
+ $("fill").style.width=`${index/questions.length*100}%`;
+ $("question").textContent=item.q;
+ $("feedback").textContent="";
+ $("nextBtn").classList.add("hidden");
+ $("nextBtn").textContent=index===questions.length-1
+  ?"See My Result 🏆":"Next Question →";
+
+ const area=$("answers");
+ area.replaceChildren();
+
  item.a.forEach((answer,i)=>{
-  const b=document.createElement("button");
-  b.className="answer";b.textContent=String.fromCharCode(65+i)+". "+answer;
-  b.onclick=()=>chooseAnswer(i);
-  area.appendChild(b);
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="answer";
+  button.textContent=String.fromCharCode(65+i)+". "+answer;
+  button.addEventListener("click",()=>chooseAnswer(i));
+  area.appendChild(button);
  });
 }
-function chooseAnswer(i){
- if(locked)return;locked=true;
+
+function chooseAnswer(choice){
+ if(locked)return;
+ locked=true;
+
  const item=questions[index];
- if(i===item.correct){score++;document.getElementById("feedback").textContent="✅ Correct!";}
- else{document.getElementById("feedback").textContent="💜 Nice try!";}
- document.querySelectorAll(".answer").forEach(b=>b.disabled=true);
- document.getElementById("fill").style.width=((index+1)/questions.length*100)+"%";
- const next=document.getElementById("next");
- next.textContent=index===questions.length-1?"See my result 🎉":"Next question →";
- next.classList.remove("hidden");
+ const buttons=$("answers").querySelectorAll("button");
+
+ buttons.forEach((button,i)=>{
+  button.disabled=true;
+  if(i===item.correct)button.classList.add("correct");
+  if(i===choice&&choice!==item.correct)button.classList.add("wrong");
+ });
+
+ if(choice===item.correct){
+  score++;
+  $("feedback").textContent="🎉 Correct! You know me well!";
+ }else{
+  $("feedback").textContent="💜 Not quite! Better luck on the next one.";
+ }
+
+ $("fill").style.width=`${(index+1)/questions.length*100}%`;
+ $("nextBtn").classList.remove("hidden");
 }
+
 function nextQuestion(){
- if(index<questions.length-1){index++;renderQuestion();}
- else showResult();
+ if(!locked)return;
+ if(index<questions.length-1){
+  index++;
+  renderQuestion();
+ }else{
+  showResult();
+ }
 }
+
 function showResult(){
- show("game",false);show("result",true);
- document.getElementById("score").textContent="Your score: "+score+" / "+questions.length;
- document.getElementById("emoji").textContent=score>=8?"🏆":score>=5?"🎉":"💜";
- document.getElementById("resultTitle").textContent=score>=8?"You know me so well, "+playerName+"!":score>=5?"Pretty good, "+playerName+"!":"Time to get to know me better, "+playerName+"!";
- document.getElementById("resultText").textContent=score>=8?"You're a true expert. I'm impressed!":score>=5?"You know quite a bit about me. Can you get a higher score next time?":"Thanks for playing! Try again and see if you can beat your score.";
+ show("result");
+ $("score").textContent=`${score} / ${questions.length}`;
+
+ if(score===10){
+  $("emoji").textContent="👑";
+  $("resultTitle").textContent="LEGENDARY, "+playerName+"!";
+  $("resultText").textContent="Perfect score! You know me inside out.";
+  $("resultMessage").textContent="You're officially a real one. 💜";
+ }else if(score>=7){
+  $("emoji").textContent="🏆";
+  $("resultTitle").textContent="Impressive, "+playerName+"!";
+  $("resultText").textContent="You know me pretty well!";
+  $("resultMessage").textContent="Can you get a perfect score next time?";
+ }else if(score>=4){
+  $("emoji").textContent="😎";
+  $("resultTitle").textContent="Not bad, "+playerName+"!";
+  $("resultText").textContent="You know a few things about me.";
+  $("resultMessage").textContent="A rematch is calling!";
+ }else{
+  $("emoji").textContent="😂";
+  $("resultTitle").textContent="Bro, "+playerName+"!";
+  $("resultText").textContent="We need to talk! 😂";
+  $("resultMessage").textContent="Play again and see if you improve.";
+ }
 }
-function restart(){
- show("result",false);show("welcome",true);
- document.getElementById("nickname").value="";
-}
-function show(id,on){document.getElementById(id).classList.toggle("hidden",!on);}
 </script>
 </body>
 </html>
